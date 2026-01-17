@@ -8,6 +8,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Lasso
 
 df  = pd.read_csv("Housing.csv")
 # print(df.head())
@@ -104,9 +105,28 @@ rmse_ridge, r2_ridge = evaluate(
     best_ridge, X_train_scaled, y_train,X_val_scaled,y_val
 )
 
-print("Ridge Regreession")
-print("RMSE: ", rmse_ridge)
-print("R2: ", r2_ridge)
+# print("Ridge Regreession")
+# print("RMSE: ", rmse_ridge)
+# print("R2: ", r2_ridge)
 
+#Lasso Regression
+lasso = Lasso(max_iter=10000)
+params = {
+    "alpha":[0.01,0.1,1,10,100]
+}
+lasso_gs = GridSearchCV(
+    lasso, params,
+    scoring="neg_root_mean_squared_error",
+    cv = 5
+)
+lasso_gs.fit(X_train_scaled, y_train)
+best_lasso = lasso_gs.best_estimator_
 
+rmse_lasso, r2_lasso = evaluate(
+    best_lasso, X_train_scaled, y_train,X_val_scaled,y_val
+)
+
+print("Lasso Regreession")
+print("RMSE: ", rmse_lasso)
+print("R2: ", r2_lasso)
 
