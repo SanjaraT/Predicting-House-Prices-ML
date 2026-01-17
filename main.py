@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import Lasso
+from sklearn.ensemble import RandomForestRegressor
 
 df  = pd.read_csv("Housing.csv")
 # print(df.head())
@@ -53,7 +54,7 @@ plt.title("Correlation Matrix Before Preprocessing")
 # plt.show()
 df["price_log"] = np.log1p(df["price"])
 
-X = df.drop(columns=['price_log'])
+X = df.drop(columns=['price', 'price_log'])
 y = df['price_log']
 
 #Split
@@ -130,3 +131,30 @@ print("Lasso Regreession")
 print("RMSE: ", rmse_lasso)
 print("R2: ", r2_lasso)
 
+#Randoom Forest
+rf = RandomForestRegressor(
+    random_state=42
+)
+
+params = {
+   'n_estimators': [200, 300],
+    'max_depth': [10, 15],
+    'min_samples_split': [5, 10],
+    'min_samples_leaf': [3, 5]
+}
+rf_gs = GridSearchCV(
+    rf, params,
+    scoring="neg_root_mean_squared_error",
+    cv = 3,
+    n_jobs=-1
+)
+rf_gs.fit(X_train, y_train)
+best_rf = rf_gs.best_estimator_
+
+rmse_rf, r2_rf = evaluate(
+    best_rf, X_train, y_train,X_val,y_val
+)
+
+print("Random Forest Regression")
+print("RMSE: ", rmse_rf)
+print("R2: ", r2_rf)
