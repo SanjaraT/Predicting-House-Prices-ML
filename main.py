@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GridSearchCV
 
 df  = pd.read_csv("Housing.csv")
 # print(df.head())
@@ -79,10 +81,32 @@ lr = LinearRegression()
 rmse_lr, r2_lr = evaluate(
     lr, X_train_scaled, y_train, X_val_scaled, y_val
 )
-print("Linear Regreession")
-print("RMSE: ", rmse_lr)
-print("R2: ", r2_lr)
+# print("Linear Regreession")
+# print("RMSE: ", rmse_lr)
+# print("R2: ", r2_lr)
 
+#Ridge Regression
+ridge = Ridge()
+params = {
+    "alpha":[0.01,0.1,1,10,100]
+}
+
+ridge_gs = GridSearchCV(
+    ridge, params,
+    scoring="neg_root_mean_squared_error",
+    cv = 5
+)
+
+ridge_gs.fit(X_train_scaled, y_train)
+best_ridge = ridge_gs.best_estimator_
+
+rmse_ridge, r2_ridge = evaluate(
+    best_ridge, X_train_scaled, y_train,X_val_scaled,y_val
+)
+
+print("Ridge Regreession")
+print("RMSE: ", rmse_ridge)
+print("R2: ", r2_ridge)
 
 
 
