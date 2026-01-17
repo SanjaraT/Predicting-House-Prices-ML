@@ -10,6 +10,7 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import Lasso
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 
 df  = pd.read_csv("Housing.csv")
 # print(df.head())
@@ -127,9 +128,9 @@ rmse_lasso, r2_lasso = evaluate(
     best_lasso, X_train_scaled, y_train,X_val_scaled,y_val
 )
 
-print("Lasso Regreession")
-print("RMSE: ", rmse_lasso)
-print("R2: ", r2_lasso)
+# print("Lasso Regreession")
+# print("RMSE: ", rmse_lasso)
+# print("R2: ", r2_lasso)
 
 #Randoom Forest
 rf = RandomForestRegressor(
@@ -155,6 +156,39 @@ rmse_rf, r2_rf = evaluate(
     best_rf, X_train, y_train,X_val,y_val
 )
 
-print("Random Forest Regression")
-print("RMSE: ", rmse_rf)
-print("R2: ", r2_rf)
+# print("Random Forest Regression")
+# print("RMSE: ", rmse_rf)
+# print("R2: ", r2_rf)
+
+#Gradient Boosting
+gb = GradientBoostingRegressor(random_state=42)
+params ={
+    'n_estimators':[100,200],
+    'learning_rate':[0.05,0.1],
+    'max_depth':[3,4]
+} 
+
+gb_gs = GridSearchCV(
+    gb, params,
+    scoring="neg_root_mean_squared_error",
+    cv = 3,
+    n_jobs=-1
+)
+gb_gs.fit(X_train, y_train)
+best_gb = gb_gs.best_estimator_
+
+rmse_gb, r2_gb = evaluate(
+    best_gb, X_train, y_train,X_val,y_val
+)
+
+# print("Gradient Boosting Regression")
+# print("RMSE: ", rmse_gb)
+# print("R2: ", r2_gb)
+
+results = pd.DataFrame({
+    "Model": ["Linear", "Ridge", "Lasso", "Random Forest", "Gradient Boosting"],
+    "RMSE": [rmse_lr, rmse_ridge, rmse_lasso, rmse_rf, rmse_gb],
+    "R2": [r2_lr, r2_ridge, r2_lasso, r2_rf, r2_gb]
+})
+
+print(results.sort_values("RMSE"))
