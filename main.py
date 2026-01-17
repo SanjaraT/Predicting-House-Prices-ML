@@ -192,3 +192,14 @@ results = pd.DataFrame({
 })
 
 print(results.sort_values("RMSE"))
+
+#Prediction
+best_model = best_gb
+best_model.fit(X_train, y_train)
+pred = best_model.predict(X_test)
+
+rmse_test = np.sqrt(mean_squared_error(y_test, pred))
+r2_test = r2_score(y_test, pred)
+
+print("Test RMSE:", rmse_test)
+print("Test R2:", r2_test)
